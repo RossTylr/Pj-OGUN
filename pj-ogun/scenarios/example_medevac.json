@@ -1,0 +1,247 @@
+{
+  "name": "Basic MEDEVAC Exercise",
+  "description": "Simple 4-node network with two combat positions, one aid station, and one Role 2 medical facility. Tests ambulance dispatch, casualty evacuation, and medical treatment queuing.",
+  "version": "1.0.0",
+  
+  "nodes": [
+    {
+      "id": "combat_alpha",
+      "name": "Combat Position Alpha",
+      "type": "combat",
+      "coordinates": {"x": 10, "y": 50},
+      "capacity": {},
+      "properties": {}
+    },
+    {
+      "id": "combat_bravo",
+      "name": "Combat Position Bravo", 
+      "type": "combat",
+      "coordinates": {"x": 10, "y": 20},
+      "capacity": {},
+      "properties": {}
+    },
+    {
+      "id": "role1_aid",
+      "name": "Role 1 Aid Station",
+      "type": "medical_role1",
+      "coordinates": {"x": 50, "y": 35},
+      "capacity": {
+        "treatment_slots": 2,
+        "holding_casualties": 6
+      },
+      "properties": {
+        "treatment_time_mins": 30,
+        "triage_time_mins": 5
+      }
+    },
+    {
+      "id": "role2_med",
+      "name": "Role 2 Medical Facility",
+      "type": "medical_role2",
+      "coordinates": {"x": 90, "y": 35},
+      "capacity": {
+        "treatment_slots": 4,
+        "holding_casualties": 20
+      },
+      "properties": {
+        "treatment_time_mins": 60,
+        "triage_time_mins": 10
+      }
+    }
+  ],
+  
+  "edges": [
+    {
+      "from": "combat_alpha",
+      "to": "role1_aid",
+      "distance_km": 8,
+      "bidirectional": true,
+      "properties": {
+        "terrain_factor": 1.2,
+        "max_vehicle_class": "medium",
+        "route_name": "MSR BRONZE North"
+      }
+    },
+    {
+      "from": "combat_bravo", 
+      "to": "role1_aid",
+      "distance_km": 6,
+      "bidirectional": true,
+      "properties": {
+        "terrain_factor": 1.0,
+        "max_vehicle_class": "medium",
+        "route_name": "MSR BRONZE South"
+      }
+    },
+    {
+      "from": "role1_aid",
+      "to": "role2_med",
+      "distance_km": 15,
+      "bidirectional": true,
+      "properties": {
+        "terrain_factor": 1.0,
+        "max_vehicle_class": "heavy",
+        "route_name": "MSR SILVER"
+      }
+    },
+    {
+      "from": "combat_alpha",
+      "to": "combat_bravo",
+      "distance_km": 5,
+      "bidirectional": true,
+      "properties": {
+        "terrain_factor": 1.5,
+        "max_vehicle_class": "light",
+        "route_name": "Track"
+      }
+    }
+  ],
+  
+  "vehicle_types": [
+    {
+      "id": "amb_light",
+      "name": "Land Rover Ambulance",
+      "role": "ambulance",
+      "vehicle_class": "light",
+      "casualty_capacity": 2,
+      "speed": {
+        "unladen_kmh": 60,
+        "laden_kmh": 45
+      },
+      "service_times": {
+        "load_time_mins": 5,
+        "unload_time_mins": 5
+      },
+      "mtbf_hours": 200,
+      "crew_size": 2,
+      "max_continuous_ops_hours": 12
+    },
+    {
+      "id": "amb_medium",
+      "name": "MAN SV Ambulance",
+      "role": "ambulance", 
+      "vehicle_class": "medium",
+      "casualty_capacity": 4,
+      "speed": {
+        "unladen_kmh": 50,
+        "laden_kmh": 35
+      },
+      "service_times": {
+        "load_time_mins": 8,
+        "unload_time_mins": 8
+      },
+      "mtbf_hours": 300,
+      "crew_size": 2,
+      "max_continuous_ops_hours": 12
+    }
+  ],
+  
+  "vehicles": [
+    {
+      "id": "medic_21",
+      "type_id": "amb_light",
+      "callsign": "MEDIC 21",
+      "start_location": "role1_aid",
+      "initial_state": "idle",
+      "initial_load_fraction": 0.0
+    },
+    {
+      "id": "medic_22",
+      "type_id": "amb_light",
+      "callsign": "MEDIC 22",
+      "start_location": "role1_aid",
+      "initial_state": "idle",
+      "initial_load_fraction": 0.0
+    },
+    {
+      "id": "dustoff_1",
+      "type_id": "amb_medium",
+      "callsign": "DUSTOFF 1",
+      "start_location": "role2_med",
+      "initial_state": "idle",
+      "initial_load_fraction": 0.0
+    }
+  ],
+  
+  "demand": {
+    "mode": "manual",
+    "manual_events": [
+      {
+        "time_mins": 30,
+        "type": "casualty",
+        "location": "combat_alpha",
+        "quantity": 1,
+        "priority": 2,
+        "properties": {"mechanism": "GSW"}
+      },
+      {
+        "time_mins": 45,
+        "type": "casualty",
+        "location": "combat_bravo",
+        "quantity": 1,
+        "priority": 1,
+        "properties": {"mechanism": "IED"}
+      },
+      {
+        "time_mins": 60,
+        "type": "casualty",
+        "location": "combat_alpha",
+        "quantity": 2,
+        "priority": 2,
+        "properties": {"mechanism": "GSW"}
+      },
+      {
+        "time_mins": 90,
+        "type": "casualty",
+        "location": "combat_bravo",
+        "quantity": 1,
+        "priority": 3,
+        "properties": {"mechanism": "Fall"}
+      },
+      {
+        "time_mins": 120,
+        "type": "casualty",
+        "location": "combat_alpha",
+        "quantity": 1,
+        "priority": 1,
+        "properties": {"mechanism": "IED"}
+      },
+      {
+        "time_mins": 150,
+        "type": "casualty",
+        "location": "combat_bravo",
+        "quantity": 2,
+        "priority": 2,
+        "properties": {"mechanism": "GSW"}
+      },
+      {
+        "time_mins": 180,
+        "type": "casualty",
+        "location": "combat_alpha",
+        "quantity": 1,
+        "priority": 2,
+        "properties": {"mechanism": "Blast"}
+      },
+      {
+        "time_mins": 240,
+        "type": "casualty",
+        "location": "combat_bravo",
+        "quantity": 1,
+        "priority": 3,
+        "properties": {"mechanism": "Vehicle accident"}
+      }
+    ],
+    "rate_based": []
+  },
+  
+  "config": {
+    "duration_hours": 8,
+    "random_seed": 42,
+    "time_step_mins": 1,
+    "enable_crew_fatigue": false,
+    "enable_vehicle_maintenance": false,
+    "enable_shift_patterns": false,
+    "enable_breakdowns": false,
+    "log_level": "INFO"
+  }
+}
