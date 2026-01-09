@@ -8,8 +8,32 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 import pandas as pd
+import numpy as np
 
 from pj_ogun.models.enums import EventType, Priority
+
+
+def _to_python(value: Any) -> Any:
+    """Convert numpy/pandas types to native Python types for JSON serialization."""
+    if value is None:
+        return None
+    if isinstance(value, (np.integer, np.int64, np.int32)):
+        return int(value)
+    if isinstance(value, (np.floating, np.float64, np.float32)):
+        return float(value)
+    if isinstance(value, np.bool_):
+        return bool(value)
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, pd.Series):
+        return value.tolist()
+    if isinstance(value, dict):
+        return {k: _to_python(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_to_python(v) for v in value]
+    return value
+
+
 from pj_ogun.simulation.events import EventLog
 
 
@@ -52,7 +76,7 @@ class MEDEVACKPIs:
     
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialisation."""
-        return {
+        return _to_python({
             "total_casualties": self.total_casualties,
             "casualties_collected": self.casualties_collected,
             "casualties_delivered": self.casualties_delivered,
@@ -72,7 +96,7 @@ class MEDEVACKPIs:
             "ambulance_missions": self.ambulance_missions,
             "ambulance_utilisation_pct": self.ambulance_utilisation,
             "by_priority": self.by_priority,
-        }
+        })
     
     def summary(self) -> str:
         """Generate human-readable summary."""
@@ -140,48 +164,49 @@ def compute_medevac_kpis(event_log: EventLog) -> MEDEVACKPIs:
     # Convert to DataFrame for easier analysis
     df = event_log.casualties_to_dataframe()
     
-    # Counts
-    kpis.casualties_collected = df["time_collected"].notna().sum()
-    kpis.casualties_delivered = df["time_delivered"].notna().sum()
-    kpis.casualties_treated = df["time_treatment_completed"].notna().sum()
+    # Counts - convert to native int
+    kpis.casualties_collected = int(df["time_collected"].notna().sum())
+    kpis.casualties_delivered = int(df["time_delivered"].notna().sum())
+    kpis.casualties_treated = int(df["time_treatment_completed"].notna().sum())
     kpis.casualties_pending = kpis.total_casualties - kpis.casualties_treated
-    
+
     # Wait times (generation → collection)
     wait_times = df["wait_time_mins"].dropna()
     if len(wait_times) > 0:
-        kpis.mean_wait_time = wait_times.mean()
-        kpis.median_wait_time = wait_times.median()
-        kpis.max_wait_time = wait_times.max()
-        kpis.p90_wait_time = wait_times.quantile(0.9)
-    
+        kpis.mean_wait_time = float(wait_times.mean())
+        kpis.median_wait_time = float(wait_times.median())
+        kpis.max_wait_time = float(wait_times.max())
+        kpis.p90_wait_time = float(wait_times.quantile(0.9))
+
     # Evacuation times (generation → delivery)
     evac_times = df["evacuation_time_mins"].dropna()
     if len(evac_times) > 0:
-        kpis.mean_evacuation_time = evac_times.mean()
-        kpis.median_evacuation_time = evac_times.median()
-        kpis.max_evacuation_time = evac_times.max()
-        kpis.p90_evacuation_time = evac_times.quantile(0.9)
-    
+        kpis.mean_evacuation_time = float(evac_times.mean())
+        kpis.median_evacuation_time = float(evac_times.median())
+        kpis.max_evacuation_time = float(evac_times.max())
+        kpis.p90_evacuation_time = float(evac_times.quantile(0.9))
+
     # Total times (generation → treatment complete)
     total_times = df["total_time_mins"].dropna()
     if len(total_times) > 0:
-        kpis.mean_total_time = total_times.mean()
-        kpis.median_total_time = total_times.median()
-        kpis.max_total_time = total_times.max()
-    
+        kpis.mean_total_time = float(total_times.mean())
+        kpis.median_total_time = float(total_times.median())
+        kpis.max_total_time = float(total_times.max())
+
     # By priority breakdown
     for priority in df["priority"].unique():
         pdata = df[df["priority"] == priority]
         pevac = pdata["evacuation_time_mins"].dropna()
-        
+        pwait = pdata["wait_time_mins"].dropna()
+
         kpis.by_priority[int(priority)] = {
-            "count": len(pdata),
-            "collected": pdata["time_collected"].notna().sum(),
-            "delivered": pdata["time_delivered"].notna().sum(),
-            "treated": pdata["time_treatment_completed"].notna().sum(),
-            "mean_wait": pdata["wait_time_mins"].dropna().mean() if len(pdata["wait_time_mins"].dropna()) > 0 else None,
-            "mean_evac": pevac.mean() if len(pevac) > 0 else None,
-            "max_evac": pevac.max() if len(pevac) > 0 else None,
+            "count": int(len(pdata)),
+            "collected": int(pdata["time_collected"].notna().sum()),
+            "delivered": int(pdata["time_delivered"].notna().sum()),
+            "treated": int(pdata["time_treatment_completed"].notna().sum()),
+            "mean_wait": float(pwait.mean()) if len(pwait) > 0 else None,
+            "mean_evac": float(pevac.mean()) if len(pevac) > 0 else None,
+            "max_evac": float(pevac.max()) if len(pevac) > 0 else None,
         }
     
     # Count ambulance missions from events
@@ -216,7 +241,7 @@ class RecoveryKPIs:
     recovery_missions: int = 0
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        return _to_python({
             "total_breakdowns": self.total_breakdowns,
             "vehicles_recovered": self.vehicles_recovered,
             "vehicles_repaired": self.vehicles_repaired,
@@ -230,7 +255,7 @@ class RecoveryKPIs:
             "mean_total_downtime_mins": self.mean_total_downtime,
             "max_total_downtime_mins": self.max_total_downtime,
             "recovery_missions": self.recovery_missions,
-        }
+        })
 
     def summary(self) -> str:
         """Generate human-readable summary."""
@@ -276,34 +301,34 @@ def compute_recovery_kpis(event_log: EventLog) -> RecoveryKPIs:
     # Convert to DataFrame for analysis
     df = event_log.breakdowns_to_dataframe()
 
-    # Counts
-    kpis.vehicles_recovered = df["time_arrived_workshop"].notna().sum()
-    kpis.vehicles_repaired = df["time_repair_completed"].notna().sum()
+    # Counts - ensure native int
+    kpis.vehicles_recovered = int(df["time_arrived_workshop"].notna().sum())
+    kpis.vehicles_repaired = int(df["time_repair_completed"].notna().sum())
     kpis.vehicles_pending = kpis.total_breakdowns - kpis.vehicles_repaired
 
     # Response times
     response_times = df["response_time_mins"].dropna()
     if len(response_times) > 0:
-        kpis.mean_response_time = response_times.mean()
-        kpis.median_response_time = response_times.median()
-        kpis.max_response_time = response_times.max()
-        kpis.p90_response_time = response_times.quantile(0.9)
+        kpis.mean_response_time = float(response_times.mean())
+        kpis.median_response_time = float(response_times.median())
+        kpis.max_response_time = float(response_times.max())
+        kpis.p90_response_time = float(response_times.quantile(0.9))
 
     # Recovery times
     recovery_times = df["recovery_time_mins"].dropna()
     if len(recovery_times) > 0:
-        kpis.mean_recovery_time = recovery_times.mean()
+        kpis.mean_recovery_time = float(recovery_times.mean())
 
     # Repair times
     repair_times = df["repair_time_mins"].dropna()
     if len(repair_times) > 0:
-        kpis.mean_repair_time = repair_times.mean()
+        kpis.mean_repair_time = float(repair_times.mean())
 
     # Total downtime
     downtime = df["total_downtime_mins"].dropna()
     if len(downtime) > 0:
-        kpis.mean_total_downtime = downtime.mean()
-        kpis.max_total_downtime = downtime.max()
+        kpis.mean_total_downtime = float(downtime.mean())
+        kpis.max_total_downtime = float(downtime.max())
 
     # Count recovery missions from dispatch events
     dispatch_events = [
@@ -342,7 +367,7 @@ class ResupplyKPIs:
     logistics_missions: int = 0
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        return _to_python({
             "total_requests": self.total_requests,
             "requests_fulfilled": self.requests_fulfilled,
             "requests_partial": self.requests_partial,
@@ -357,7 +382,7 @@ class ResupplyKPIs:
             "p90_delivery_time_mins": self.p90_delivery_time,
             "stockout_events": self.stockout_events,
             "logistics_missions": self.logistics_missions,
-        }
+        })
 
     def summary(self) -> str:
         """Generate human-readable summary."""
@@ -404,14 +429,14 @@ def compute_resupply_kpis(event_log: EventLog) -> ResupplyKPIs:
     # Convert to DataFrame for analysis
     df = event_log.ammo_requests_to_dataframe()
 
-    # Quantities
+    # Quantities - ensure native int
     kpis.total_requested = int(df["quantity_requested"].sum())
     kpis.total_delivered = int(df["quantity_delivered"].sum())
 
     if kpis.total_requested > 0:
-        kpis.fulfillment_rate = (kpis.total_delivered / kpis.total_requested) * 100
+        kpis.fulfillment_rate = float((kpis.total_delivered / kpis.total_requested) * 100)
 
-    # Request status counts
+    # Request status counts - ensure native int
     kpis.requests_fulfilled = int(df["is_fulfilled"].sum())
     delivered_mask = df["time_delivered"].notna()
     partial_mask = delivered_mask & ~df["is_fulfilled"]
@@ -421,15 +446,15 @@ def compute_resupply_kpis(event_log: EventLog) -> ResupplyKPIs:
     # Wait times
     wait_times = df["wait_time_mins"].dropna()
     if len(wait_times) > 0:
-        kpis.mean_wait_time = wait_times.mean()
+        kpis.mean_wait_time = float(wait_times.mean())
 
     # Delivery times
     delivery_times = df["delivery_time_mins"].dropna()
     if len(delivery_times) > 0:
-        kpis.mean_delivery_time = delivery_times.mean()
-        kpis.median_delivery_time = delivery_times.median()
-        kpis.max_delivery_time = delivery_times.max()
-        kpis.p90_delivery_time = delivery_times.quantile(0.9)
+        kpis.mean_delivery_time = float(delivery_times.mean())
+        kpis.median_delivery_time = float(delivery_times.median())
+        kpis.max_delivery_time = float(delivery_times.max())
+        kpis.p90_delivery_time = float(delivery_times.quantile(0.9))
 
     # Stockout events
     stockout_events = event_log.filter_by_type(EventType.STOCKOUT)
@@ -449,6 +474,7 @@ def compute_all_kpis(event_log: EventLog) -> dict[str, Any]:
     """Compute all KPIs from event log.
 
     Returns dict with keys: medevac, recovery, resupply
+    All values are JSON-serializable (native Python types).
     """
     return {
         "medevac": compute_medevac_kpis(event_log).to_dict(),
