@@ -1,7 +1,7 @@
 [project]
 name = "pj-ogun"
 version = "0.1.0"
-description = "British Army CS/CSS Logistics Simulation"
+description = "Logistics & Field Operations Simulation Platform"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -12,7 +12,7 @@ dependencies = [
     "numpy>=1.24",
     "streamlit>=1.30",
     "plotly>=5.18",
-    "streamlit-drawable-canvas>=0.9",
+    "streamlit-flow-component>=1.6.0",
 ]
 
 [project.optional-dependencies]
