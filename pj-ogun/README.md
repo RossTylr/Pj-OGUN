@@ -2,15 +2,27 @@
 
 **Logistics & Field Operations Simulation Platform**
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/?aliId=eyJpIjoiMDFvdGRLNXVXOU55RE1ERSIsInQiOiI3TTJBZmhEcVwvazhXZzE0dStQVnFldz09In0%253D)
+
 Pj-OGUN is a discrete-event simulation platform for modelling field logistics and support operations. Named after the Yoruba orisha of iron, craftsmanship, and labour, it simulates:
 
 - **CASEVAC**: Casualty evacuation from field positions to medical facilities
 - **Recovery**: Vehicle breakdown response and repair workflows
 - **Resupply**: Equipment and materiel distribution
 
+## Live Demo
+
+**[Launch Pj-OGUN on Streamlit Cloud](https://share.streamlit.io/?aliId=eyJpIjoiMDFvdGRLNXVXOU55RE1ERSIsInQiOiI3TTJBZmhEcVwvazhXZzE0dStQVnFldz09In0%253D)**
+
+No installation required - run simulations directly in your browser.
+
 ## Features
 
 - **Interactive Scenario Builder** - Visual node-based canvas for designing logistics networks
+- **Scenario Templates** - Pre-built configurations for common exercises:
+  - Basic MEDEVAC (4 nodes)
+  - Battalion Support (10 nodes)
+  - Brigade TIRGOLD (20+ nodes)
 - **SimPy Simulation Engine** - Discrete-event simulation with deterministic (seeded) runs
 - **Animation Replay** - Playback simulation results with vehicle tracking and event markers
 - **KPI Dashboard** - Real-time metrics by subsystem (CASEVAC, Recovery, Resupply)
@@ -19,6 +31,11 @@ Pj-OGUN is a discrete-event simulation platform for modelling field logistics an
 - **Flexible Demand** - Manual event scheduling or rate-based generation
 
 ## Quick Start
+
+### Option 1: Streamlit Cloud (Recommended)
+Click the badge above or visit the [Live Demo](https://share.streamlit.io/?aliId=eyJpIjoiMDFvdGRLNXVXOU55RE1ERSIsInQiOiI3TTJBZmhEcVwvazhXZzE0dStQVnFldz09In0%253D) link.
+
+### Option 2: Local Installation
 
 ```bash
 cd pj-ogun
@@ -57,6 +74,7 @@ pj-ogun/
 │       └── state/        # Session state management
 ├── tests/                # Test suite
 ├── scenarios/            # Example scenario JSON files
+├── .streamlit/           # Streamlit Cloud configuration
 ├── run.sh                # One-command launcher
 └── requirements.txt      # Dependencies for cloud deployment
 ```
@@ -69,7 +87,9 @@ pj-ogun/
 - [x] Phase 3: Streamlit MVP UI
 - [x] Phase 4: Interactive canvas builder + extended operations (72hr, fatigue, breakdowns)
 - [x] Phase 5: Animation replay with playback controls
-- [ ] Phase 6: Polish & handover
+- [x] Phase 6: Advanced scenarios (multi-echelon templates, UX improvements)
+- [ ] Phase 7: Sensitivity analysis & Monte Carlo
+- [ ] Phase 8: Documentation & handover
 
 ## Tech Stack
 
@@ -80,6 +100,17 @@ pj-ogun/
 - **NetworkX** - Graph operations
 - **Plotly** - Interactive visualizations
 - **streamlit-flow-component** - Node-based canvas
+
+## Deployment
+
+### Streamlit Cloud
+The app is configured for Streamlit Cloud deployment:
+1. Connect your GitHub repository to [share.streamlit.io](https://share.streamlit.io)
+2. Set the main file path to: `pj-ogun/src/pj_ogun/ui/app.py`
+3. Dependencies are automatically installed from `requirements.txt`
+
+### Docker (Coming Soon)
+Docker containerisation planned for Phase 8.
 
 ## License
 
