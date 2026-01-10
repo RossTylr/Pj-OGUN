@@ -2,7 +2,7 @@
 
 **Logistics & Field Operations Simulation Platform**
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/?aliId=eyJpIjoiMDFvdGRLNXVXOU55RE1ERSIsInQiOiI3TTJBZmhEcVwvazhXZzE0dStQVnFldz09In0%253D)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pj-ogun.streamlit.app)
 
 Pj-OGUN is a discrete-event simulation platform for modelling field logistics and support operations. Named after the Yoruba orisha of iron, craftsmanship, and labour, it simulates:
 
@@ -12,7 +12,7 @@ Pj-OGUN is a discrete-event simulation platform for modelling field logistics an
 
 ## Live Demo
 
-**[Launch Pj-OGUN on Streamlit Cloud](https://share.streamlit.io/?aliId=eyJpIjoiMDFvdGRLNXVXOU55RE1ERSIsInQiOiI3TTJBZmhEcVwvazhXZzE0dStQVnFldz09In0%253D)**
+**[Launch Pj-OGUN on Streamlit Cloud](https://pj-ogun.streamlit.app)**
 
 No installation required - run simulations directly in your browser.
 
@@ -33,7 +33,7 @@ No installation required - run simulations directly in your browser.
 ## Quick Start
 
 ### Option 1: Streamlit Cloud (Recommended)
-Click the badge above or visit the [Live Demo](https://share.streamlit.io/?aliId=eyJpIjoiMDFvdGRLNXVXOU55RE1ERSIsInQiOiI3TTJBZmhEcVwvazhXZzE0dStQVnFldz09In0%253D) link.
+Click the badge above or visit the [Live Demo](https://pj-ogun.streamlit.app) link.
 
 ### Option 2: Local Installation
 
