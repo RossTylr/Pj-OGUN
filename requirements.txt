@@ -8,5 +8,5 @@ streamlit>=1.30
 plotly>=5.18
 streamlit-flow-component>=1.6.0
 
-# Install local package
--e .
+# Install local package (non-editable for Streamlit Cloud)
+.
