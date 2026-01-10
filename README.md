@@ -38,7 +38,6 @@ Click the badge above or visit the [Live Demo](https://share.streamlit.io/?aliId
 ### Option 2: Local Installation
 
 ```bash
-cd pj-ogun
 ./run.sh
 ```
 
@@ -46,7 +45,6 @@ This creates an isolated `.venv`, installs dependencies, and launches the UI at 
 
 ### Manual setup (if needed)
 ```bash
-cd pj-ogun
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -63,7 +61,7 @@ ogun run scenarios/example_medevac.json --output results/
 ## Project Structure
 
 ```
-pj-ogun/
+Pj-OGUN/
 ├── src/pj_ogun/
 │   ├── models/           # Pydantic schema definitions
 │   ├── simulation/       # SimPy engine and processes
@@ -76,7 +74,8 @@ pj-ogun/
 ├── scenarios/            # Example scenario JSON files
 ├── .streamlit/           # Streamlit Cloud configuration
 ├── run.sh                # One-command launcher
-└── requirements.txt      # Dependencies for cloud deployment
+├── requirements.txt      # Dependencies for cloud deployment
+└── pyproject.toml        # Package configuration
 ```
 
 ## Development Phases
@@ -106,7 +105,7 @@ pj-ogun/
 ### Streamlit Cloud
 The app is configured for Streamlit Cloud deployment:
 1. Connect your GitHub repository to [share.streamlit.io](https://share.streamlit.io)
-2. Set the main file path to: `pj-ogun/src/pj_ogun/ui/app.py`
+2. Set the main file path to: `src/pj_ogun/ui/app.py`
 3. Dependencies are automatically installed from `requirements.txt`
 
 ### Docker (Coming Soon)
